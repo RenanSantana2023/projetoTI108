@@ -7,116 +7,119 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+//importar a classe
+using System.Runtime.InteropServices;
+
 
 namespace PadariaCarmel
 {
     public partial class frmCalcula : Form
     {
+        //Criando variáveis para controle do menu
+        const int MF_BYCOMMAND = 0X400;
+        [DllImport("user32")]
+        static extern int RemoveMenu(IntPtr hMenu, int nPosition, int wFlags);
+        [DllImport("user32")]
+        static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        [DllImport("user32")]
+        static extern int GetMenuItemCount(IntPtr hWnd);
+
         public frmCalcula()
         {
             InitializeComponent();
         }
 
-
         private void btnSair_Click(object sender, EventArgs e)
         {
-            //comentários de linha
-            //Close();
-
+            // Close();
             Application.Exit();
-
-               
-                
         }
 
         private void btnLimpar_Click(object sender, EventArgs e)
         {
-            txtNumero1.Text = "";
-            txtNumero2.Clear();
+            txtNum1.Text = "";
+            txtNum2.Clear();
             lblResposta.Text = "";
+
             rdbSoma.Checked = false;
             rdbSubtracao.Checked = false;
             rdbDivisao.Checked = false;
-            txtNumero1.Focus();
+            rdbMultiplicacao.Checked = false;
+
+            txtNum1.Focus();
         }
 
-        private void btnCalcular_Click(object sender, EventArgs e)
-        { // declaração das variavéis
-            double num1, num2, resp;
+        private void btnCalcula_Click(object sender, EventArgs e)
+        {
+            double num1, num2, resp = 0;
 
-            //if (!(rdbSoma.Checked))
-           // {
-                //MessageBox.Show("selecione uma operação");
-                
-           // }
+            /*num1 = double.Parse(txtNum1.Text);
+            num2 = double.Parse(txtNum2.Text);*/
 
-            //if (rdbSoma.Checked || rdbSubtracao.Checked || rdbDivisao.Checked || rdbMuntiplicacao)
-
-            try
+            if (rdbSoma.Checked || rdbSubtracao.Checked || rdbMultiplicacao.Checked || rdbDivisao.Checked)
             {
-                num1 = Convert.ToDouble(txtNumero1.Text);
-                num2 = Convert.ToDouble(txtNumero2.Text);
-                // estrutura de decisão
-               
-                // soma
-                if (rdbSoma.Checked)
+                try
                 {
-                    resp = num1 + num2;
-                    lblResposta.Text = resp.ToString();
-                    
-                }
-                //subtração
-                if (rdbSubtracao.Checked)
-                {
-                    resp = num1 - num2;
-                    lblResposta.Text = resp.ToString();
-                   
-                }
-                //muntiplicação
-                if (rdbMuntiplicacao.Checked)
-                {
-                    resp = num1 * num2;
-                    lblResposta.Text = resp.ToString();
-                   
-                }
-                //divisão
-                if (rdbDivisao.Checked)
-                {
-                    resp = num1 / num2;
-                    lblResposta.Text = resp.ToString();
-                
-                    if (num2 == 0)
+                    num1 = Convert.ToDouble(txtNum1.Text);
+                    num2 = Convert.ToDouble(txtNum2.Text);
+
+                    if (rdbSoma.Checked)
                     {
-                        MessageBox.Show("impossivel dividir por 0");
-                        txtNumero1.Text = "";
-                        txtNumero2.Text = "";
-                        lblResposta.Text = "";
-                        rdbDivisao.Checked = false;
-                        txtNumero1.Focus();
-
+                        resp = num1 + num2;
                     }
-
+                    else if (rdbSubtracao.Checked)
+                    {
+                        resp = num1 - num2;
+                    }
+                    else if (rdbMultiplicacao.Checked)
+                    {
+                        resp = num1 * num2;
+                    }
                     else
                     {
-                        resp = num1 / num2;
-                        // Pode-se colocar de forma global 
-                        lblResposta.Text = resp.ToString();
+                        if (num2 == 0)
+                        {
+                            MessageBox.Show("Impossível por 0");
+
+                            txtNum1.Text = "";
+                            txtNum2.Text = "";
+                            rdbDivisao.Checked = false;
+
+                            txtNum1.Focus();
+
+                            lblResposta.Text = "";
+                        }
+                        else
+                        {
+                            resp = num1 / num2;
+                        }
                     }
 
+                    lblResposta.Text = resp.ToString();
                 }
-
+                catch (Exception)
+                {
+                    MessageBox.Show("Favor inserie somene números");
+                    txtNum1.Text = "";
+                    txtNum2.Text = "";
+                    txtNum1.Focus();
+                }
             }
-            catch (Exception)
+            else
             {
-                MessageBox.Show("Favor inserir somente números!!!");
-                txtNumero1.Clear();
-                txtNumero2.Text = "";
-                txtNumero1.Focus();
+                MessageBox.Show("Por favor selecione uma operação",
+                    "Mensagem do sistema",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
             }
+        }
 
-            {
-
-            }
+        private void frmCalcula_Load(object sender, EventArgs e)
+        {
+            IntPtr hMenu = GetSystemMenu(this.Handle, false);
+            int MenuCount = GetMenuItemCount(hMenu) - 1;
+            RemoveMenu(hMenu, MenuCount, MF_BYCOMMAND);
         }
     }
 }

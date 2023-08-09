@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+//importar a classe
 using System.Runtime.InteropServices;
+
 namespace PadariaCarmel
 {
     public partial class frmFuncionarios : Form
@@ -20,8 +22,6 @@ namespace PadariaCarmel
         static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
         [DllImport("user32")]
         static extern int GetMenuItemCount(IntPtr hWnd);
-
-
         public frmFuncionarios()
         {
             InitializeComponent();
@@ -32,6 +32,7 @@ namespace PadariaCarmel
             IntPtr hMenu = GetSystemMenu(this.Handle, false);
             int MenuCount = GetMenuItemCount(hMenu) - 1;
             RemoveMenu(hMenu, MenuCount, MF_BYCOMMAND);
+            desabilitarCampos();
         }
 
         private void btnNovo_Click(object sender, EventArgs e)
@@ -41,20 +42,18 @@ namespace PadariaCarmel
         //desabilitar campos
         public void desabilitarCampos()
         {
-            txtBairro.Enabled = false;
+            txtCodigo.Enabled = false;
             txtNome.Enabled = false;
             txtEndereco.Enabled = false;
-            txtNumero.Enabled = false;
             txtBairro.Enabled = false;
-            txtCidade.Enabled = false;
             txtEmail.Enabled = false;
-
-
-            mskCep.Enabled = false;
+            txtNumero.Enabled = false;
+            txtCidade.Enabled = false;
+            
+            mskCEP.Enabled = false;
             mskCPF.Enabled = false;
             mskTelefone.Enabled = false;
-
-
+            
             cbbEstado.Enabled = false;
 
             btnCadastrar.Enabled = false;
@@ -62,56 +61,38 @@ namespace PadariaCarmel
             btnExcluir.Enabled = false;
             btnLimpar.Enabled = false;
         }
-
         public void habilitarCampos()
         {
-            txtBairro.Enabled = false;
+            txtCodigo.Enabled = false;
             txtNome.Enabled = true;
             txtEndereco.Enabled = true;
-            txtNumero.Enabled = true;
             txtBairro.Enabled = true;
-            txtCidade.Enabled = true;
             txtEmail.Enabled = true;
+            txtNumero.Enabled = true;
+            txtCidade.Enabled = true;
 
-
-            mskCep.Enabled = true;
+            mskCEP.Enabled = true;
             mskCPF.Enabled = true;
             mskTelefone.Enabled = true;
-
 
             cbbEstado.Enabled = true;
 
             btnCadastrar.Enabled = true;
             btnAlterar.Enabled = false;
             btnExcluir.Enabled = false;
-            btnLimpar.Enabled = true;
+            btnLimpar.Enabled = true;            
             btnNovo.Enabled = false;
 
             txtNome.Focus();
         }
 
-        private void btnAlterar_Click(object sender, EventArgs e)
-        {
-            desabilitarCampos();
-        }
-
-        private void btnExcluir_Click(object sender, EventArgs e)
-        {
-            desabilitarCampos();
-        }
-
-        private void btnPesquisar_Click(object sender, EventArgs e)
-        {
-            desabilitarCampos();
-        }
-
         private void btnCadastrar_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Cadastrado com Sucesso", "Mensagem do sistema.",
+            MessageBox.Show("Cadastrado como sucesso!!!", 
+                "Mensagem do sistema",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information,
                 MessageBoxDefaultButton.Button1);
-
             desabilitarCampos();
             btnNovo.Enabled = true;
             limparCampos();
@@ -124,35 +105,99 @@ namespace PadariaCarmel
             this.Hide();
         }
 
-        public void limparCampos()
+        private void btnAlterar_Click(object sender, EventArgs e)
         {
-            txtBairro.Enabled = false;
-            txtNome.Clear();
-            txtEndereco.Clear(); 
-            txtBairro.Clear();
-            txtCidade.Clear();
-            txtEmail.Clear();
 
-
-            mskCep.Clear();
-            mskCPF.Clear();
-            mskTelefone.Clear();
-
-
-            cbbEstado.Text = "";
-
-            //btnCadastrar.Clear();
-            //btnAlterar.Clear();
-            //btnExcluir.Clear();
-           /// btnLimpar.Clear();
-            //btnNovo.Clear();
-
-            txtNome.Focus();
         }
 
         private void btnLimpar_Click(object sender, EventArgs e)
         {
             limparCampos();
+        }
+        //Limpar campos
+        public void limparCampos()
+        {
+            txtCodigo.Enabled = false;
+            txtNome.Clear();
+            txtEndereco.Clear();
+            txtBairro.Clear();
+            txtEmail.Clear();
+            txtNumero.Clear();
+            txtCidade.Clear();
+
+            mskCEP.Clear();
+            mskCPF.Clear();
+            mskTelefone.Clear();
+
+            cbbEstado.Text="";
+
+           
+
+            txtNome.Focus();
+        }
+
+        private void btnCarregaCEP_Click(object sender, EventArgs e)
+        {
+            buscaCEP(mskCEP.Text);
+            txtNumero.Focus();
+        }
+
+        //http://www.andrealveslima.com.br/blog/index.php/2016/09/07/acessando-os-web-services-dos-correios-com-c-e-vb-net-consulta-de-ceps-e-precos/
+        public void buscaCEP(string numCEP)
+        {
+            WSCorreios.AtendeClienteClient ws = new WSCorreios.AtendeClienteClient();
+            try
+            {
+                WSCorreios.enderecoERP endereco = ws.consultaCEP(numCEP);
+
+                txtEndereco.Text = endereco.end;
+                txtBairro.Text = endereco.bairro;
+                txtCidade.Text = endereco.cidade;
+                cbbEstado.Text = endereco.uf;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Favor inserir CEP válido",
+                    "Mensagem do sistema",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error,
+                    MessageBoxDefaultButton.Button1);
+                mskCEP.Focus();
+                mskCEP.Text = "";
+
+                
+            }  
+            //WSCorreios.enderecoERP endereco = ws.consultaCEP(numCEP);
+
+            //txtEndereco.Text = endereco.end;
+            //txtBairro.Text = endereco.bairro;
+            //txtCidade.Text = endereco.cidade;
+            //cbbEstado.Text = endereco.uf;
+        }
+
+        private void mskCEP_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                buscaCEP(mskCEP.Text);
+                txtNumero.Focus();
+            } 
+        }
+
+        private void btnCarregaCEP_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void mskCEP_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+        {
+
+        }
+
+        private void btnPesquisar_Click(object sender, EventArgs e)
+        {
+            frmPesquisarFuncionarios abrir = new frmPesquisarFuncionarios();
+            abrir.ShowDialog();
         }
     }
 }

@@ -21,30 +21,35 @@ namespace PadariaCarmel
         static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
         [DllImport("user32")]
         static extern int GetMenuItemCount(IntPtr hWnd);
-
         public frmSplash()
         {
             InitializeComponent();
         }
 
-
-        private void tmrSplash_Tick(object sender, EventArgs e)
+        private void label1_Click(object sender, EventArgs e)
         {
 
-            if (pgbCarregando.Value < 100)
+        }
+
+        private void tmrSplash_Tick(object sender, EventArgs e)
+        {  
+            
+            if(pgbCarregando.Value < 100)
             {
-                pgbCarregando.Value = pgbCarregando.Value + 2;
+                pgbCarregando.Value = pgbCarregando.Value +2;
+
                 lblCarregando.Text = pgbCarregando.Value.ToString();
             }
             else
             {
                 tmrSplash.Enabled = false;
+                //
                 frmLogin abrir = new frmLogin();
                 abrir.Show();
                 this.Hide();
             }
-          
-  
+           
+           
         }
 
         private void frmSplash_Load(object sender, EventArgs e)
